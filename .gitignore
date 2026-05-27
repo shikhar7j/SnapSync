@@ -1,0 +1,20 @@
+# Node modules (ignores them in both client and server)
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# Expo / React Native
+.expo/
+dist/
+*.apk
+*.aab
+expo-env.d.ts
+
+# Android Keystores
+*.jks
+*.keystore
+
+# Local IP config
+constant.ts

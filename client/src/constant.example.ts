@@ -1,0 +1,1 @@
+export const SERVER_IP = "http://YOUR_LOCAL_IP:3000";

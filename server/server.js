@@ -9,6 +9,10 @@ const app = express()
 const httpServer = createServer(app)
 const io = new Server(httpServer, { cors: { origin: '*' } })
 
+app.get('/ping', (req, res) => {
+  res.json({ ok: true })
+})
+
 const photosDir = path.join(__dirname, '..', 'photos')
 if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir, { recursive: true })
 

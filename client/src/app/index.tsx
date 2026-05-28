@@ -3,9 +3,10 @@ import { View, Text, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity
 import { io } from 'socket.io-client'
 import * as Clipboard from 'expo-clipboard'
 import { startPhotoSync } from '../photoSync'
-import { SERVER_IP } from '../constant'
+import { getIP } from '../utils/storage'
+import { router } from 'expo-router'
 
-const socket = io(SERVER_IP) 
+let socket:any=null
 
 export default function Index() {
   const [connected, setConnected] = useState(false)
@@ -16,21 +17,29 @@ export default function Index() {
   const [stopSync, setStopSync] = useState<(() => void) | null>(null)
 
   useEffect(() => {
+  const init = async () => {
+    const ip = await getIP()
+    if (!ip) return
+    
+    socket = io(ip)
 
     if (socket.connected) setConnected(true)
-
     socket.on('connect', () => setConnected(true))
     socket.on('disconnect', () => setConnected(false))
     socket.on('clipboard', async (text: string) => {
       await Clipboard.setStringAsync(text)
       setLastSync(text)
     })
-    return () => {
-      socket.off('connect')
-      socket.off('disconnect')
-      socket.off('clipboard')
-    }
-  }, [])
+  }
+  init()
+
+  return () => {
+    socket?.off('connect')
+    socket?.off('disconnect')
+    socket?.off('clipboard')
+  }
+}, [])
+
 
   const togglePhotoSync = async () => {
   if (syncingPhotos) {
@@ -40,7 +49,9 @@ export default function Index() {
     setPhotoStatus('')
   } else {
       setSyncingPhotos(true)
-      const cleanup = await startPhotoSync(setPhotoStatus)
+      const ip=await getIP()
+      if (!ip)return
+      const cleanup = await startPhotoSync(ip,setPhotoStatus)
       setStopSync(() => cleanup)
   }
 }
@@ -65,10 +76,13 @@ export default function Index() {
         {connected ? '🟢 Connected to PC!' : '🔴 Disconnected'}
       </Text>
 
-      <View style={styles.photoBox}>
-        <Text style={styles.syncLabel}>📷 Photo Sync:</Text>
-        <Text style={styles.syncText}>{photoStatus || 'Watching camera roll...'}</Text>
-      </View>
+      <TouchableOpacity 
+        style={styles.changeIpBtn} 
+        onPress={() => router.replace('/setup')} // Use your exact setup file name here!
+      >
+        <Text style={styles.changeIpText}>⚙️ Change PC IP</Text>
+      </TouchableOpacity>
+
       <View style={styles.photoBox}>
         <Text style={styles.syncLabel}>📷 Photo Sync:</Text>
         <Text style={styles.syncText}>{photoStatus || 'Not started'}</Text>
@@ -119,4 +133,6 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 8 },
   copyBtn: { marginTop: 8, backgroundColor: '#4CAF50', padding: 8, borderRadius: 6, alignSelf: 'flex-start' },
   copyBtnText: { color: 'white', fontSize: 12, fontWeight: 'bold' },
+  changeIpBtn: { backgroundColor: '#e0e0e0', padding: 8, borderRadius: 6, alignSelf: 'flex-start', marginBottom: 16 },
+  changeIpText: { color: '#333', fontSize: 12, fontWeight: 'bold' },
 })

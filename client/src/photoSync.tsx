@@ -1,9 +1,7 @@
 import * as MediaLibrary from 'expo-media-library'
-import { SERVER_IP } from './constant'
-
-const SERVER_URL = SERVER_IP 
 
 const uploadPhoto=async(
+  serverUrl:string,
   asset:MediaLibrary.Asset,
   onStatus:(status:string)=>void
 )=>{
@@ -15,7 +13,7 @@ const uploadPhoto=async(
       name:`photo_${Date.now()}.jpg` 
     } as any)
 
-    const response=await fetch(`${SERVER_URL}/upload-photo`,{
+    const response=await fetch(`${serverUrl}/upload-photo`,{
       method:'POST',
       body:formData,
     })
@@ -34,6 +32,7 @@ const uploadPhoto=async(
 }
 
 export async function startPhotoSync(
+  serverUrl:string,
   onStatus: (status: string) => void  
 ): Promise<() => void> {
   
@@ -56,7 +55,7 @@ export async function startPhotoSync(
   for(let i=batch.assets.length-1;i>=0;i--){
     const asset=batch.assets[i];
     onStatus(`Uploading ${batch.assets.length-i}/${batch.assets.length}...`)
-    await uploadPhoto(asset,onStatus)
+    await uploadPhoto(serverUrl,asset,onStatus)
     syncedIds.add(asset.id)
   }
 
@@ -81,7 +80,7 @@ export async function startPhotoSync(
     if (latest.id !== lastPhotoId && !syncedIds.has(latest.id)) {
       lastPhotoId = latest.id
       syncedIds.add(latest.id)
-      await uploadPhoto(latest,onStatus)
+      await uploadPhoto(serverUrl,latest,onStatus)
     }
   }, 3000)
   return () => clearInterval(interval)

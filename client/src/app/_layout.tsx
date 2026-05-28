@@ -1,16 +1,22 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import React from 'react';
-import { useColorScheme } from 'react-native';
+import { useEffect, useState } from 'react'
+import { Stack } from 'expo-router'
+import { getIP } from '../utils/storage'
+import { router } from 'expo-router'
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+export default function Layout() {
+  const [checked, setChecked] = useState(false)
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
-  );
+  useEffect(() => {
+    getIP().then(ip => {
+      setChecked(true)
+      if (!ip) router.replace('/setup')
+    }).catch(()=>{
+      setChecked(true)
+      router.replace('/setup')
+    })  
+  }, [])
+
+  if (!checked) return <Stack screenOptions={{ headerShown: false }} />
+
+  return <Stack screenOptions={{ headerShown: false }} />
 }

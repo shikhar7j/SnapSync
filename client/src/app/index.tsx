@@ -31,16 +31,14 @@ export default function Index() {
 
   const togglePhotoSync = async () => {
   if (syncingPhotos) {
-    // stop sync
     if (stopSync) stopSync()
     setStopSync(null)
     setSyncingPhotos(false)
     setPhotoStatus('')
   } else {
-    // start sync
-    setSyncingPhotos(true)
-    const cleanup = await startPhotoSync(setPhotoStatus)
-    setStopSync(() => cleanup)
+      setSyncingPhotos(true)
+      const cleanup = await startPhotoSync(setPhotoStatus)
+      setStopSync(() => cleanup)
   }
 }
 

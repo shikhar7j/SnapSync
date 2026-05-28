@@ -16,6 +16,9 @@ export default function Index() {
   const [stopSync, setStopSync] = useState<(() => void) | null>(null)
 
   useEffect(() => {
+
+    if (socket.connected) setConnected(true)
+
     socket.on('connect', () => setConnected(true))
     socket.on('disconnect', () => setConnected(false))
     socket.on('clipboard', async (text: string) => {

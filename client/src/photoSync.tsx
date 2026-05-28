@@ -78,12 +78,11 @@ export async function startPhotoSync(
     const latest = result.assets[0]
     console.log('Polling - latest ID:', latest.id, 'last known:', lastPhotoId)
 
-    if (latest.id !== lastPhotoId) {
+    if (latest.id !== lastPhotoId && !syncedIds.has(latest.id)) {
       lastPhotoId = latest.id
+      syncedIds.add(latest.id)
       await uploadPhoto(latest,onStatus)
     }
   }, 3000)
-
-  onStatus('👀 Watching camera roll...')
   return () => clearInterval(interval)
 }

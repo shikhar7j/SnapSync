@@ -12,6 +12,8 @@ export default function Index() {
   const [lastSync, setLastSync] = useState('')
   const [pcInput, setPcInput] = useState('')
   const [photoStatus, setPhotoStatus] = useState('')
+  const [syncingPhotos, setSyncingPhotos] = useState(false)
+  const [stopSync, setStopSync] = useState<(() => void) | null>(null)
 
   useEffect(() => {
     socket.on('connect', () => setConnected(true))
@@ -27,11 +29,20 @@ export default function Index() {
     }
   }, [])
 
-  useEffect(() => {
-    let cleanup: () => void = () => {}
-    startPhotoSync(setPhotoStatus).then(fn => { cleanup = fn })
-    return () => cleanup()
-  }, [])
+  const togglePhotoSync = async () => {
+  if (syncingPhotos) {
+    // stop sync
+    if (stopSync) stopSync()
+    setStopSync(null)
+    setSyncingPhotos(false)
+    setPhotoStatus('')
+  } else {
+    // start sync
+    setSyncingPhotos(true)
+    const cleanup = await startPhotoSync(setPhotoStatus)
+    setStopSync(() => cleanup)
+  }
+}
 
   const syncPhoneClipboard = async () => {
     const text = await Clipboard.getStringAsync()
@@ -57,7 +68,17 @@ export default function Index() {
         <Text style={styles.syncLabel}>📷 Photo Sync:</Text>
         <Text style={styles.syncText}>{photoStatus || 'Watching camera roll...'}</Text>
       </View>
-
+      <View style={styles.photoBox}>
+        <Text style={styles.syncLabel}>📷 Photo Sync:</Text>
+        <Text style={styles.syncText}>{photoStatus || 'Not started'}</Text>
+        <TouchableOpacity
+          style={[styles.copyBtn, { backgroundColor: syncingPhotos ? '#f44336' : '#2196F3' }]}
+          onPress={togglePhotoSync}>
+          <Text style={styles.copyBtnText}>
+            {syncingPhotos ? '⏹ Stop Sync' : '▶ Start Sync'}
+          </Text>
+        </TouchableOpacity>
+      </View>
       {lastSync ? (
         <View style={styles.syncBox}>
           <Text style={styles.syncLabel}>📋 From PC:</Text>

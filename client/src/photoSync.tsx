@@ -33,6 +33,7 @@ const uploadPhoto=async(
 
 export async function startPhotoSync(
   serverUrl:string,
+  batchSize:number,
   onStatus: (status: string) => void  
 ): Promise<() => void> {
   
@@ -47,7 +48,7 @@ export async function startPhotoSync(
   const batch=await MediaLibrary.getAssetsAsync({
     mediaType:'photo',
     sortBy:'creationTime',
-    first:10
+    first:batchSize
   })
 
   const syncedIds=new Set<string>()

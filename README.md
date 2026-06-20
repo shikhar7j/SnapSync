@@ -27,15 +27,17 @@ npm start
 cd client
 npm install
 eas build --profile development --platform android
+npx expo start
 ```
 Install the APK on your phone, open it, enter your PC's IP when prompted.
 
 ## Usage
 1. Run `npm start` in the `server` folder
-2. Open the app on your phone,it connects automatically
-3. Copy text on PC → tap Copy in app to use it on phone
-4. Paste text in app → tap Send to PC → paste anywhere on PC
-5. Tap ▶ Start Sync to begin photo sync
+2. Run 'npx expo start' in the client folder
+3. Open the app on your phone,it connects automatically
+4. Copy text on PC → tap Copy in app to use it on phone
+5. Paste text in app → tap Send to PC → paste anywhere on PC
+6. Tap ▶ Start Sync to begin photo sync ,Click photos that you want to upload to PC.
 
 ## Notes
 - Both devices must be on the same Wi-Fi
